@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人理财互动抽题</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f7f8fa;
+        }
+        
+        /* Headers */
+        h1, h2 {
+            color: #1976d2; /* A slightly darker blue for better contrast */
+            text-align: center;
+            border-bottom: 2px solid #1976d2;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        /* Control Buttons Container */
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Buttons */
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px; /* Pill shape */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Slight lift on hover */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        button#check-btn {
+            background-color: #28a745; /* Green for check button */
+        }
+
+        button#check-btn:hover {
+            background-color: #1e7e34;
+        }
+
+        /* Question Section Container */
+        .question-section {
+            background-color: #fff;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        
+        /* Individual Question Block */
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .question:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        /* Question Text */
+        .question p {
+            font-weight: 600; /* Bolder question text */
+            font-size: 1.1em;
+            margin: 0 0 15px 0;
+        }
+
+        /* Options List */
+        .question ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        /* Option Item */
+        .question li {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .question li label {
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .question li input {
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        /* --- Feedback Styles --- */
+        .question li.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .question li.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        /* Result Text (Shows below the question after checking) */
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .result.correct {
+            display: block;
+            background-color: #e2f0d9;
+            color: #155724;
+        }
+
+        .result.incorrect {
+            display: block;
+            background-color: #fde2e4;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>个人理财互动抽题</h1>
+
+    <div class="controls">
+        <button onclick="generateQuestions()">随机抽题</button>
+        <button id="check-btn" onclick="checkAnswers()">核对答案</button>
+    </div>
+
+    <div id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <script>
+        // Data for single-choice questions
+        const singleChoiceQuestions = [
+            { question: "一般认为，现代理财起源于()。", options: ["英国证券业", "英国银行业", "美国保险业", "美国信托"], answer: "C" },
+            { question: "人生目标多种多样，就一般意义上，理财规划的最终目标是要达到()。", options: ["财务独立", "财务安全", "财务自主", "财务自由"], answer: "D" },
+            { question: "客户周先生希望实现财产的增值，作为理财师你应该为他主要进行()。", options: ["现金规划", "风险管理和保险规划", "投资规划", "财产分配与传承规划"], answer: "C" },
+            { question: "关于理财目标的确定原则说法错误的是()。", options: ["理财目标需要遵守客户意愿", "以改善客户财务状况，使之更加合理为主旨", "理财目标必须具有现实性", "理财目标要具体明确"], answer: "B" },
+            { question: "理财方案建议书经过修改最终交付客户后，需要客户签署声明书。一般来说，客户声明不包括()。", options: ["已经完整阅读该方案", "信息真实准确，没有重大遗漏", "理财师就重要问题进行了解释和说明", "承诺理财方案的投资收益率"], answer: "D" },
+            { question: "关于个人理财业务的说法中，错误的是()。", options: ["商业银行的个人理财业务是中间业务", "个人理财业务足一项银行的收费业务", "在个人理财业务中，银行只承担代理人角色", "个人理财业务是建立在委托——代理关系基础之上的"], answer: "C" },
+            { question: "理财师在为客户制定理财规划方案时，不需要作为制定依据的是()。", options: ["客户的风险承受能力", "理财师的个人经验", "客户的财务状况", "客户的理财目标"], answer: "B" },
+            { question: "在财务分析中，对客户的资产负债情况进行分析时，通常是以()时点的信息为依据。", options: ["过去", "现在", "未来", "过去和现在"], answer: "B" },
+            { question: "宏观经济政策中，()会对证券市场产生最直接的影响。", options: ["货币政策", "财政政策", "汇率政策", "产业政策"], answer: "A" },
+            { question: "在经济衰退阶段，政府应采取的财政政策是()。", options: ["增加政府支出和增加税收", "减少政府支出和减少税收", "增加政府支出和减少税收", "减少政府支出和增加税收"], answer: "C" },
+            { question: "客户的非财务信息不包括()。", options: ["家庭成员构成", "个人价值观", "客户的风险偏好", "客户的收支情况"], answer: "D" },
+            { question: "在对客户的财务状况进行分析时，如果发现客户的结余比率为40%，投资与净资产比率为60%，这说明该客户()。", options: ["资产的流动性较弱", "财务状况稳健", "有过度的负债", "投资较为激进"], answer: "D" },
+            { question: "以下哪个指标能够最好地反映客户的偿债能力？", options: ["结余比率", "负债比率", "流动比率", "投资与净资产比率"], answer: "B" },
+            { question: "个人理财规划的核心是()。", options: ["风险管理", "投资规划", "现金规划", "综合规划"], answer: "D" },
+            { question: "根据生命周期理论，个人在()阶段的财富积累速度最快。", options: ["形成期", "成长期", "成熟期", "退休期"], answer: "C" },
+            { question: "退休养老规划中，最难预测的因素是()。", options: ["通货膨胀率", "投资回报率", "预期寿命", "退休后的生活开支"], answer: "C" },
+            { question: "我国《商业银行个人理财业务管理暂行办法》规定，商业银行销售的理财产品，其风险评级结果应当以()形式告知客户。", options: ["口头", "书面", "电话", "电子邮件"], answer: "B" },
+            { question: "在进行子女教育规划时，不需要优先考虑的是()。", options: ["教育费用", "教育时间", "资金的投资回报率", "子女的兴趣爱好"], answer: "D" },
+            { question: "保险规划在个人理财中的首要功能是()。", options: ["财富增值", "风险转移", "合理避税", "财富传承"], answer: "B" },
+            { question: "个人所得税中，稿酬所得适用的税率是()。", options: ["3%-45%的超额累进税率", "20%的比例税率，并按应纳税额减征30%", "20%的比例税率", "5%-35%的超额累进税率"], answer: "B" },
+            { question: "根据我国现行规定，企业年金基金财产投资于股票、股票基金、混合基金、投资连结保险产品、企业债券、可转换债等权益类资产的比例，合计不得高于投资组合委托投资资产净值的()。", options: ["20%", "30%", "40%", "50%"], answer: "C" },
+            { question: "在现收现付制的养老保险模式下，资金的来源主要是()。", options: ["个人的储蓄", "当前一代工作者的缴费", "政府的财政补贴", "投资收益"], answer: "B" },
+            { question: "某客户希望在5年后积累30万元用于购房首付，在年投资回报率为6%的情况下，他每年末需要储蓄多少钱？（计算结果最接近）", options: ["5.33万元", "5.66万元", "5.97万元", "6.21万元"], answer: "A" },
+            { question: "如果市场利率上升，债券的价格会()。", options: ["上升", "下降", "不变", "不确定"], answer: "B" },
+            { question: "“不要把所有的鸡蛋都放在一个篮子里”这句俗语，在投资学中体现了()的原则。", options: ["风险分散", "集中投资", "长期投资", "价值投资"], answer: "A" },
+        ];
+
+        // Data for multiple-choice questions
+        const multipleChoiceQuestions = [
+            { question: "个人理财规划的内容主要包括()。", options: ["现金规划", "消费支出规划", "风险管理与保险规划", "投资规划", "退休养老规划"], answer: "ABCDE" },
+            { question: "制定理财规划方案的步骤包括()。", options: ["收集客户信息", "进行财务分析", "确定理财目标", "制定理财方案", "方案的执行与修正"], answer: "ABCDE" },
+            { question: "宏观经济环境分析通常包括对()的分析。", options: ["经济增长", "通货膨胀", "利率水平", "就业状况", "国际收支"], answer: "ABCDE" },
+            { question: "以下属于资产负债表中资产项目的有()。", options: ["活期存款", "股票投资", "汽车", "房屋贷款", "信用卡欠款"], answer: "ABC" },
+            { question: "在为客户进行财务分析时，常用的财务比率有()。", options: ["流动比率", "负债比率", "结余比率", "投资与净资产比率", "负债收入比"], answer: "ABCDE" },
+            { question: "货币政策工具主要有()。", options: ["法定存款准备金率", "再贴现率", "公开市场操作", "税收", "政府支出"], answer: "ABC" },
+            { question: "影响个人风险承受能力的因素有()。", options: ["年龄", "财富状况", "投资知识", "家庭责任", "性格特征"], answer: "ABCDE" },
+            { question: "投资规划的目标可能包括()。", options: ["资本增值", "获取稳定的现金流", "抵御通货膨胀", "合理避税", "满足购房、教育等大额支出需求"], answer: "ABCDE" },
+            { question: "保险的基本功能有()。", options: ["经济补偿", "资金融通", "社会管理", "风险投资", "财富增值"], answer: "ABC" },
+            { question: "我国个人所得税的应税所得项目包括()。", options: ["工资、薪金所得", "劳务报酬所得", "稿酬所得", "财产转让所得", "偶然所得"], answer: "ABCDE" },
+            { question: "退休养老规划需要考虑的因素有()。", options: ["预期寿命", "期望的退休年龄", "退休后的生活费用", "通货膨胀", "预期的投资回报率"], answer: "ABCDE" },
+            { question: "企业年金的特点包括()。", options: ["由国家强制建立", "企业和职工共同缴费", "资金进行市场化投资运营", "实行个人账户管理", "是基本养老保险的重要补充"], answer: "BCDE" },
+            { question: "投资于基金的优点有()。", options: ["专家管理", "分散风险", "流动性高", "节约成本", "保证盈利"], answer: "ABCD" },
+            { question: "常见的金融衍生工具包括()。", options: ["股票", "债券", "远期合约", "期货合约", "期权"], answer: "CDE" },
+            { question: "遗产规划的目标主要有()。", options: ["确保财产按照逝者的意愿进行分配", "避免或减少遗产纠纷", "合理避税", "实现家族财富的长期传承", "在生前最大化消费"], answer: "ABCD" },
+        ];
+
+        /**
+         * Shuffles an array in place.
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        /**
+         * Generates and displays new random questions.
+         */
+        function generateQuestions() {
+            shuffleArray(singleChoiceQuestions);
+            shuffleArray(multipleChoiceQuestions);
+
+            const selectedSingle = singleChoiceQuestions.slice(0, 10);
+            const selectedMulti = multipleChoiceQuestions.slice(0, 10);
+
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // Clear previous questions
+
+            // --- Single Choice Section ---
+            let singleChoiceHtml = '<div class="question-section"><h2>单项选择题</h2>';
+            selectedSingle.forEach((q, index) => {
+                const questionNumber = index + 1;
+                singleChoiceHtml += `
+                    <div class="question" data-answer="${q.answer}" data-type="single">
+                        <p>${questionNumber}. ${q.question.replace('()', ' ( &nbsp; ) ')}</p>
+                        <ul>
+                            ${q.options.map((opt, optIndex) => {
+                                const optionLetter = String.fromCharCode(65 + optIndex);
+                                return `<li>
+                                          <input type="radio" id="s_q${questionNumber}_${optionLetter}" name="single_q${questionNumber}" value="${optionLetter}">
+                                          <label for="s_q${questionNumber}_${optionLetter}">${opt}</label>
+                                        </li>`;
+                            }).join('')}
+                        </ul>
+                        <div class="result"></div>
+                    </div>`;
+            });
+            singleChoiceHtml += '</div>';
+
+            // --- Multiple Choice Section ---
+            let multiChoiceHtml = '<div class="question-section"><h2>多项选择题</h2>';
+            selectedMulti.forEach((q, index) => {
+                const questionNumber = index + 1;
+                multiChoiceHtml += `
+                    <div class="question" data-answer="${q.answer}" data-type="multi">
+                        <p>${questionNumber}. ${q.question}</p>
+                        <ul>
+                            ${q.options.map((opt, optIndex) => {
+                                const optionLetter = String.fromCharCode(65 + optIndex);
+                                return `<li>
+                                          <input type="checkbox" id="m_q${questionNumber}_${optionLetter}" value="${optionLetter}">
+                                          <label for="m_q${questionNumber}_${optionLetter}">${opt}</label>
+                                        </li>`;
+                            }).join('')}
+                        </ul>
+                        <div class="result"></div>
+                    </div>`;
+            });
+            multiChoiceHtml += '</div>';
+
+            container.innerHTML = singleChoiceHtml + multiChoiceHtml;
+        }
+
+        /**
+         * Checks the user's answers and provides visual feedback.
+         */
+        function checkAnswers() {
+            const questions = document.querySelectorAll('.question');
+            if (questions.length === 0) {
+                alert('请先点击“随机抽题”按钮生成题目！');
+                return;
+            }
+
+            questions.forEach(q => {
+                const type = q.dataset.type;
+                const correctAnswer = q.dataset.answer;
+                const optionsLis = q.querySelectorAll('ul li');
+                const resultEl = q.querySelector('.result');
+                let isCompletelyCorrect = false;
+
+                // Remove previous results before checking again
+                optionsLis.forEach(li => {
+                    li.classList.remove('correct', 'incorrect');
+                });
+
+                if (type === 'single') {
+                    const selectedRadio = q.querySelector('input[type="radio"]:checked');
+                    const userAnswer = selectedRadio ? selectedRadio.value : '';
+                    isCompletelyCorrect = (userAnswer === correctAnswer);
+
+                    optionsLis.forEach(li => {
+                        const optionLetter = li.querySelector('input').value;
+                        if (optionLetter === correctAnswer) {
+                            li.classList.add('correct'); // Always highlight the correct answer
+                        } else if (optionLetter === userAnswer && !isCompletelyCorrect) {
+                            li.classList.add('incorrect'); // Highlight the user's wrong choice
+                        }
+                    });
+                } else if (type === 'multi') {
+                    const selectedCheckboxes = q.querySelectorAll('input[type="checkbox"]:checked');
+                    const userAnswer = Array.from(selectedCheckboxes)
+                                         .map(cb => cb.value)
+                                         .sort()
+                                         .join('');
+                    isCompletelyCorrect = (userAnswer === correctAnswer);
+
+                    optionsLis.forEach(li => {
+                        const input = li.querySelector('input');
+                        const optionLetter = input.value;
+                        const isSelected = input.checked;
+                        const isCorrectOption = correctAnswer.includes(optionLetter);
+
+                        if (isCorrectOption) {
+                            li.classList.add('correct'); // Highlight all correct options
+                        } 
+                        
+                        if (isSelected && !isCorrectOption) {
+                            li.classList.add('incorrect'); // Highlight selected but incorrect options
+                        }
+                    });
+                }
+
+                // Show the result summary text
+                resultEl.style.display = 'block';
+                if (isCompletelyCorrect) {
+                    resultEl.textContent = `回答正确！正确答案是: ${correctAnswer}`;
+                    resultEl.className = 'result correct';
+                } else {
+                    resultEl.textContent = `回答错误。正确答案是: ${correctAnswer}`;
+                    resultEl.className = 'result incorrect';
+                }
+            });
+        }
+
+        // Generate questions on initial page load
+        window.onload = generateQuestions;
+    </script>
+
+</body>
+</html>
